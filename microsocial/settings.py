@@ -54,6 +54,8 @@ ROOT_URLCONF = 'microsocial.urls'
 
 WSGI_APPLICATION = 'microsocial.wsgi.application'
 
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
+
 AUTH_USER_MODEL = 'userauth.User'
 
 
