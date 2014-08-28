@@ -1,3 +1,5 @@
+#coding=utf-8
+
 """
 Django settings for microsocial project.
 
@@ -10,6 +12,8 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from django.utils.translation import ugettext_lazy as _
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -76,15 +80,26 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
+LANGUAGES = (
+    ('en', _(u'English')),
+    ('ru', _(u'Русский')),
+    ('uk', _(u'Украинский')),
+
+)
+
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 
 # Static files (CSS, JavaScript, Images)
