@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
+<head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
 </head>
@@ -8,6 +8,17 @@
 
 {% block content %}
 {% endblock %}
+
+{% load flatpages %}
+
+<footer class="base">
+        <p class="text-center margin flatpages">
+            {% get_flatpages as flatpages %}
+            {% for page in flatpages %}
+                <a href="{{ page.url }}">{{ page.title }}</a>
+            {% endfor %}
+        </p>
+</footer>
 
 </body>
 </html>
