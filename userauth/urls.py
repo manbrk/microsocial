@@ -1,5 +1,5 @@
-# from django.conf.urls import patterns, url
-#
-# urlpatterns = patterns('',
-#     url(r'^shop_list/$', 'shop.views.shop_list', name='shop_list'),
-#     )
+from django.conf.urls import patterns, url, include
+
+urlpatterns = patterns('',
+    url(r'^user/', include('django.contrib.flatpages.urls')),
+)
