@@ -10,32 +10,27 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">Project name</a>
+      <a class="navbar-brand" href="#">Microsocial</a>
     </div>
+
+        <form action="{% url 'set_language' %}" method="post">
+            <input name="next" type="hidden" value="{{ redirect_to }}">
+            <input id="set_lang_code" name="language" type="hidden" value="">
+        </form>
+
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li class="active"><a href="#">Home</a></li>
         <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
-            <form action="{% url 'set_language' %}" method="post">
-                <input name="next" type="hidden" value="{{ redirect_to }}">
-                <input id="set_lang_code" name="language" type="hidden" value="">
-            </form>
 
-            <ul class="dropdown-menu" role="menu">
-            {% get_language_info_list for LANGUAGES as languages %}
+        {% get_language_info_list for LANGUAGES as languages %}
             {% for language in languages %}
                 <li><a href="#" title="{{ language.name_local }}"
                    {% if language.code == LANGUAGE_CODE %}style="font-weight: bold;"{% endif %}
                    onclick="$('#set_lang_code').val('{{ language.code }}').closest('form').submit(); return false;">
                     {{ language.code }}</a></li>
             {% endfor %}
-            <li class="divider"></li>
-            <li class="dropdown-header">Выбери язык</li>
-          </ul>
-        </li>
+
       </ul>
     </div><!--/.nav-collapse -->
   </div>
