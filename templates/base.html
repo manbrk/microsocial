@@ -1,28 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-</head>
-<body>
+{% load static i18n flatpages %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="../../favicon.ico">
 
-{% block head %}
-    {% include 'header.html' %}
-{% endblock %}
+    <title>{% block title %}{{ DEFAULT_TITLE }}{% endblock %}</title>
 
-{% block content %}
-{% endblock %}
+    {% block css %}
+    <!-- Bootstrap core CSS -->
+        <link href="{% static '/static/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+        <link href="{% static '/static/css/sticky-footer-navbar.css' %}" rel="stylesheet">
+    {% endblock %}
+  </head>
 
-{% load flatpages %}
+  <body>
+    <!-- Begin header content -->
+    {% block head %}
+        {% include 'header.html' %}
+    {% endblock %}
 
-<footer class="base">
-        <p class="text-center margin flatpages">
-            {% get_flatpages as flatpages %}
-            {% for page in flatpages %}
-                <a href="{{ page.url }}">{{ page.title }}</a>
-            {% endfor %}
-        </p>
-</footer>
 
-</body>
+    <!-- Begin page content -->
+    <div class="container">
+      <p class="lead">
+          {% block content %}
+          {% endblock %}
+      </p>
+    </div>
+
+    <!-- Begin footer content -->
+    {% block footer %}
+        {% include 'footer.html' %}
+    {% endblock %}
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    {% block js %}
+        <script src="{% static '/static/js/jquery.min.js' %}"></script>
+        <script src="{% static '/static/js/bootstrap.min.js' %}"></script>
+    {% endblock %}
+  </body>
 </html>

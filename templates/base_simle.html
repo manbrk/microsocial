@@ -1,0 +1,28 @@
+{% load static i18n flatpages %}<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+
+{% block head %}
+    {% include 'header.html' %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% load flatpages %}
+
+<footer class="base">
+        <p class="text-center margin flatpages">
+            {% get_flatpages as flatpages %}
+            {% for page in flatpages %}
+                <a href="{{ page.url }}">{{ page.title }}</a>
+            {% endfor %}
+        </p>
+</footer>
+
+</body>
+</html>
