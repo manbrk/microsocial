@@ -8,5 +8,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^i18n/setlang/$', csrf_exempt(set_language), name='set_language'),
     url(r'', include('users.urls')),
+    url(r'', include('usersauth.urls')),
     url(r'', include('django.contrib.flatpages.urls')),
 )

@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.flatpages',
     'microsocial',
     'users',
+    'usersauth',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -107,3 +108,5 @@ LOCALE_PATHS = (
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGIN_URL = 'login'
