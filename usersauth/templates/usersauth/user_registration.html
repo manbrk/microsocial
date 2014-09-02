@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% load i18n %}
+{% load i18n microsocial %}
 
 {% block title %}registration{% endblock %}
 
@@ -13,7 +13,8 @@
                 <form class="form-horizontal" method="post">
                     {% csrf_token %}
                     {% for field in form %}
-                        <div class="form-group">
+                        {% show_form_field_errors field.errors 'col-sm-offset-4 col-sm-8' %}
+                        <div class="form-group {% if field.errors %} has-error {% endif %}">
                             <label for="{{ field.id_for_label }}" class="control-label col-sm-4">
                                 {{ field.label|capfirst }}
                             </label>

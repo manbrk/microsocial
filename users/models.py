@@ -46,6 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         help_text=_('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    confirmed_registration = models.BooleanField(_('confirmed registration'), default=True)
     sex = models.SmallIntegerField(_(u'пол'), choices=SEX_CHOICES, default=SEX_NONE)
     birth_date = models.DateField(_(u'дата рожедния'), null=True, blank=True)
     city = models.CharField(_(u'город'), max_length=50, blank=True)
