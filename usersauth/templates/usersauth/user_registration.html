@@ -5,10 +5,45 @@
 {% block title %}registration{% endblock %}
 
 {% block content %}
+        <div class="row">
+            <div class="col-xs-offset 3 col-xs-6">
+
+                <h1 class="text-center">{% trans 'регистрация'|capfirst %}</h1>
+
+                <form class="form-horizontal" method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="control-label col-sm-4">
+                                {{ field.label|capfirst }}
+                            </label>
+
+                            <div class="col-sm-8">
+                                {{ field }}
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <input type="submit" class="btn btn-primary"
+                                    value="{% trans 'зарегистрироваться'|capfirst %}">
+
+                        </div>
+                    </div>
+
+                </form>
+
+                <div class="row">
+                    <div class="col-sm-offset-4 col-sm-8">
+                        <a href="{% url 'login' %}" style="margin-top: 40px;">{% trans 'авторизация'|capfirst %}</a>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
         
-    <h3>user registration here</h3>
-
-    <a href="{% url 'login' %}">{% trans 'авторизация'|capfirst %}</a>
-
-
 {% endblock %}

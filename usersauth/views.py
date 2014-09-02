@@ -17,8 +17,8 @@ class RegistrationView(TemplateView):
         self.form = RegistrationForm(request.POST or None)
         return super(RegistrationView, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        context = super(RegistrationView).get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(RegistrationView, self).get_context_data(**kwargs)
         context['form'] = self.form
         return context
 
