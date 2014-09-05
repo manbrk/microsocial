@@ -1,7 +1,7 @@
 {% load i18n flatpages %}
 <div class="footer">
   <div class="container">
-    <p class="text-muted">
+    <p class="text-center text-muted">
         {% get_flatpages as flatpages %}
         {% for page in flatpages %}
             <a href="{{ page.url }}">{{ page.title }}</a>

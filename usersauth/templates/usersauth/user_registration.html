@@ -8,43 +8,57 @@
         <div class="row">
             <div class="col-xs-offset 3 col-xs-6">
 
-                <h1 class="text-center">{% trans 'регистрация'|capfirst %}</h1>
+                {% if registered_user %}
 
-                <form class="form-horizontal" method="post">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        {% show_form_field_errors field.errors 'col-sm-offset-4 col-sm-8' %}
-                        <div class="form-group {% if field.errors %} has-error {% endif %}">
-                            <label for="{{ field.id_for_label }}" class="control-label col-sm-4">
-                                {{ field.label|capfirst }}
-                            </label>
+                    <h1>
+                        {% blocktrans with u=registered_user.get_short_name %}
+                            {{ u }} зарегестрирован.
+                        {% endblocktrans %}
+                    </h1>
+                    <p>
+                        {% blocktrans with e=registered_user.email %}
+                            Подтверди регистраци перейдя по ссылке, которая отправлена на email {{ e }}.
+                        {% endblocktrans %}
+                    </p>
 
-                            <div class="col-sm-8">
-                                {{ field }}
+                {% else %}
+
+                    <h1 class="text-center">{% trans 'регистрация'|capfirst %}</h1>
+
+                    <form class="form-horizontal" method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            {% show_form_field_errors field.errors 'col-sm-offset-4 col-sm-8' %}
+                            <div class="form-group {% if field.errors %} has-error {% endif %}">
+                                <label for="{{ field.id_for_label }}" class="control-label col-sm-4">
+                                    {{ field.label|capfirst }}
+                                </label>
+
+                                <div class="col-sm-8">
+                                    {{ field }}
+                                </div>
+                            </div>
+
+                        {% endfor %}
+                        <div class="form-group">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <input type="submit" class="btn btn-primary"
+                                        value="{% trans 'зарегистрироваться'|capfirst %}">
+
                             </div>
                         </div>
 
-                    {% endfor %}
-                    <div class="form-group">
-                        <div class="col-sm-offset-4 col-sm-8">
-                            <input type="submit" class="btn btn-primary"
-                                    value="{% trans 'зарегистрироваться'|capfirst %}">
+                    </form>
 
+                    <div class="row">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <a href="{% url 'login' %}" style="margin-top: 40px;">{% trans 'авторизация'|capfirst %}</a>
                         </div>
                     </div>
 
-                </form>
-
-                <div class="row">
-                    <div class="col-sm-offset-4 col-sm-8">
-                        <a href="{% url 'login' %}" style="margin-top: 40px;">{% trans 'авторизация'|capfirst %}</a>
-                    </div>
-
-                </div>
-
+                {% endif %}
 
             </div>
-
         </div>
         
 {% endblock %}

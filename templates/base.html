@@ -1,4 +1,4 @@
-{% load static i18n flatpages %}<!DOCTYPE html>
+{% load static i18n flatpages microsocial %}<!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="utf-8">
@@ -25,7 +25,8 @@
 
     <!-- Begin page content -->
     <div class="container">
-      <p class="lead">
+      <p class="text-center lead">
+          {% show_messages %}
           {% block content %}
           {% endblock %}
       </p>
