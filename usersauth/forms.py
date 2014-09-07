@@ -1,6 +1,8 @@
 #coding=utf-8
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.conf import settings
+from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
+from django.core import validators
 from users.models import User
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -66,3 +68,11 @@ class PasswordRecoveryForm(forms.Form):
 
     def get_user(self):
         return self._user
+
+class NewPasswordForm(SetPasswordForm):
+    def __init__(self, *args, **kwargs):
+        super(NewPasswordForm, self).__init__(*args, **kwargs)
+        for field_name in ('new_password1', 'new_password1'):
+            self.fields[field_name].validators.extend([validators.MinLengthValidator(6),
+                                                       validators.MaxLengthValidator(40)])
+        self.user.backend = settings.AUTHENTICATION_BACKENDS[0]
