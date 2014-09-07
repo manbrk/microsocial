@@ -75,14 +75,14 @@ class PasswordRecoveryView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(PasswordRecoveryView, self).get_context_data(**kwargs)
         context['form'] = self.form
-        if 'password_recovery_user_id' in self.request.session
+        if 'password_recovery_user_id' in self.request.session:
             context['password_recovery_user'] = User.objects.get(pk=self.request.session.pop('password_recovery_user_id'))
         return context
 
     def post(self, request, *args, **kwargs):
         if self.form.is_valid():
             user = self.form.get_user()
-            #todo отправить емаил
+            user.send_password_recovery_mail()
             request.session['password_recovery_user_id'] = user.pk
             return redirect(request.path)
         return self.get(request, *args, **kwargs)

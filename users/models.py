@@ -1,7 +1,8 @@
 #coding=utf-8
+import hashlib
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
-from django.core.signing import Signer
+from django.core.signing import Signer, TimestampSigner
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, \
@@ -81,3 +82,19 @@ class User(AbstractBaseUser, PermissionsMixin):
             ugettext(u'Подтвердите регистрацию на microsocial'),
             ugettext(u'Для подтверждения перейдите по ссылке: %s' % url)
         )
+
+    def get_last_login_hash(self):
+        return hashlib.md5(self.last_login.strftime('%Y-%m-%d-%H-%M-%S-%f')).hexdigest()[:16]
+
+    def send_password_recovery_mail(self):
+        data = '%d:%s' % (self.pk, self.get_last_login_hash())
+        token = TimestampSigner(salt='password-recovery-confirm').sign(data)
+        url = 'http://%s%s' % (
+            Site.objects.get_current().domain,
+            reverse('password_recovery_confirm', kwargs={'token': token})
+        )
+        self.email_user(
+            ugettext(u'Подтвердите восстановление пароля на microsocial'),
+            ugettext(u'Для подтверждения перейдите по ссылке: %s' % url)
+        )
+
