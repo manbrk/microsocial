@@ -33,6 +33,12 @@
                     {{ language.code }}</a></li>
             {% endfor %}
 
+            {% if user.is_authenticated %}
+
+                <li><a href="{% url 'logout' %}">{% trans 'выход'|capfirst %}</a></li>
+
+            {% endif %}
+
       </ul>
     </div><!--/.nav-collapse -->
   </div>

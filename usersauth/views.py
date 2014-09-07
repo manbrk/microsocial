@@ -1,18 +1,21 @@
 #coding=utf-8
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.views import login
 from django.core.signing import Signer, BadSignature
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, RedirectView
-from usersauth.forms import RegistrationForm
+from usersauth.forms import RegistrationForm, LoginForm
 from users.models import User
 from django.utils.translation import ugettext as _
 
 
 def login_view(request):
-    return render(request, 'usersauth/user_login.html')
+    if request.user.is_authenticated():
+        return redirect('main')
+    return login(request, 'usersauth/user_login.html', authentication_form=LoginForm)
 
 
 class RegistrationView(TemplateView):
@@ -62,3 +65,7 @@ class RegistrationConfirmView(RedirectView):
 
 class PasswordRecoveryView(TemplateView):
     template_name = 'usersauth/user_password_recover.html'
+
+
+class PasswordRecoveryConfirm(TemplateView):
+    template_name = 'usersauth/user_password_recovery_form.html'
