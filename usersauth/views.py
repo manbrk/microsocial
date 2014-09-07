@@ -1,6 +1,7 @@
 #coding=utf-8
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import login as auth_login
 from django.contrib.auth.views import login
 from django.core.signing import Signer, BadSignature, TimestampSigner
 from django.core.urlresolvers import reverse_lazy
@@ -105,10 +106,18 @@ class PasswordRecoveryConfirmView(TemplateView):
         if not user.confirmed_registration:
             user.confirmed_registration = True
             user.save(update_fields=('confirmed_registration',))
-            self.form = NewPasswordForm(user, request.POST or None)
-            return super(PasswordRecoveryConfirmView, self).dispatch(request, *args, **kwargs)
+        self.form = NewPasswordForm(user, request.POST or None)
+        return super(PasswordRecoveryConfirmView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(PasswordRecoveryConfirmView, self).get_context_data(**kwargs)
         context['form'] = self.form
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.form.is_valid():
+            self.form.save()
+            auth_login(request, self.form.user)
+            # redirect to profile edit
+            return redirect('user_profile', user_id=self.form.user.pk)
+        return self.get(request, *args, **kwargs)
