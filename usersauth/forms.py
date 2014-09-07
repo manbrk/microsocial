@@ -46,3 +46,22 @@ class LoginForm(AuthenticationForm):
         if self.errors:
             self._errors.clear()
             raise  forms.ValidationError(ugettext(u'неверный email или пароль'))
+
+
+class PasswordRecoveryForm(forms.Form):
+
+    email = forms.EmailField(label=_(u'email'))
+
+    def __init__(self, *args, **kwargs):
+        super(PasswordRecoveryForm, self).__init__(*args, **kwargs)
+        self._user = None
+
+    def clean(self):
+        data = super(PasswordRecoveryForm, self).clean()
+        try:
+            self._user = User.objects.get(email=data['email'])
+        except User.DoesNotExist:
+            self.add_error('email', ugettext(u'Пользователя с этим email не существует.'))
+
+    def get_user(self):
+        return self._user

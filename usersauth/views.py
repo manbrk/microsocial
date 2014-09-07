@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, RedirectView
-from usersauth.forms import RegistrationForm, LoginForm
+from usersauth.forms import RegistrationForm, LoginForm, PasswordRecoveryForm
 from users.models import User
 from django.utils.translation import ugettext as _
 
@@ -66,6 +66,26 @@ class RegistrationConfirmView(RedirectView):
 class PasswordRecoveryView(TemplateView):
     template_name = 'usersauth/user_password_recover.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return redirect('main')
+        self.form = PasswordRecoveryForm(request.POST or None)
+        return super(PasswordRecoveryView, self).dispatch(request, *args, **kwargs)
 
-class PasswordRecoveryConfirm(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = super(PasswordRecoveryView, self).get_context_data(**kwargs)
+        context['form'] = self.form
+        if 'password_recovery_user_id' in self.request.session
+            context['password_recovery_user'] = User.objects.get(pk=self.request.session.pop('password_recovery_user_id'))
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if self.form.is_valid():
+            user = self.form.get_user()
+            #todo отправить емаил
+            request.session['password_recovery_user_id'] = user.pk
+            return redirect(request.path)
+        return self.get(request, *args, **kwargs)
+
+class PasswordRecoveryConfirmView(TemplateView):
     template_name = 'usersauth/user_password_recovery_form.html'
