@@ -1,5 +1,6 @@
 #coding=utf-8
 import hashlib
+import os
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core.signing import Signer, TimestampSigner
@@ -8,6 +9,7 @@ from django.utils import timezone
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, \
     BaseUserManager
 from django.db import models
+from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 
@@ -27,6 +29,14 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True, **extra_fields)
 
+def get_avatar_fn(instance, filename):
+    id_str = str(instance.pk)
+    return 'avatars/{sub_dir}/{id}_{rnd}{ext}'.format(
+        sub_dir=id_str.zfill(2)[-2:],
+        id=id_str,
+        rnd=get_random_string(8, 'abcdefghijklmnopqrstuvwxyz1234567890'),
+        ext=os.path.splitext(filename)[1],
+    )
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -51,6 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     confirmed_registration = models.BooleanField(_('confirmed registration'), default=True)
+    avatar = models.ImageField(_(u'аватар'), upload_to=get_avatar_fn, blank=True)
     sex = models.SmallIntegerField(_(u'пол'), choices=SEX_CHOICES, default=SEX_NONE)
     birth_date = models.DateField(_(u'дата рожедния'), null=True, blank=True)
     city = models.CharField(_(u'город'), max_length=50, blank=True)
