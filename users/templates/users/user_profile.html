@@ -1,9 +1,64 @@
 {% extends 'base.html' %}
 
+    {% load i18n users %}
+
 {% block title %}profile{% endblock %}
 
 {% block content %}
         
-    <h3>user profile here</h3>
+    <div class="row">
+        <div class="col-xs-3">
+            <div style="margin-top: 20px;">
+                <img class="img-responsive" src="{{ profile_user|get_avatar }}">
+            </div>
+            <div class="text-center" style="margin-top: 10px">
+                <a href="#">{% trans 'настройки'|capfirst %}</a>
+            </div>
+        </div>
+        <div class="col-xs-9">
+            <h1>{{ profile_user.get_full_name }}</h1>
+            <table class="table">
+                <tbody>
+                {% if profile_user.sex %}
+                    <tr>
+                        <td>{% trans 'пол'|capfirst %}</td>
+                        <td>{{ profile_user.get_sex_display }}</td>
+                    </tr>
+                {% endif %}
+                {% if profile_user.birth_date %}
+                    <tr>
+                        <td>{% trans 'дата рождения'|capfirst %}</td>
+                        <td>{{ profile_user.birth_date }}</td>
+                    </tr>
+                {% endif %}
+                {% if profile_user.city %}
+                    <tr>
+                        <td>{% trans 'город'|capfirst %}</td>
+                        <td>{{ profile_user.city }}</td>
+                    </tr>
+                {% endif %}
+                {% if profile_user.job %}
+                    <tr>
+                        <td>{% trans 'место работы'|capfirst %}</td>
+                        <td>{{ profile_user.job }}</td>
+                    </tr>
+                {% endif %}
+                {% if profile_user.about_me %}
+                    <tr>
+                        <td>{% trans 'о себе'|capfirst %}</td>
+                        <td>{{ profile_user.about_me|linebreaksbr }}</td>
+                    </tr>
+                {% endif %}
+                {% if profile_user.interests %}
+                    <tr>
+                        <td>{% trans 'интересы'|capfirst %}</td>
+                        <td>{{ profile_user.interests|linebreaksbr }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 
 {% endblock %}
