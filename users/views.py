@@ -1,5 +1,6 @@
 #coding=utf-8
 from django.contrib import messages
+from django.contrib.auth import BACKEND_SESSION_KEY, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -52,7 +53,8 @@ class UserSettingsView(TemplateView):
             return redirect(request.path)
         elif self.password_form.is_valid():
             self.password_form.save()
+            request.user.backend = request.session[BACKEND_SESSION_KEY]
+            login(request, request.user)
             messages.success(request, _(u'Пароль успешно изменен.'))
             return redirect(request.path)
-
         return self.get(request, *args, **kwargs)
