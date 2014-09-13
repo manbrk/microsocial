@@ -46,4 +46,35 @@
             </div>
         </div>
     </form>
+
+    <form class="form-horizontal" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="password">
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-9">
+                <div class="row">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <h2>{% trans 'изменение пароля'|capfirst %}</h2>
+                    </div>
+                </div>
+                {% for field in password_form %}
+                    {% show_form_field_errors field.errors 'col-sm-offset col-sm-9' %}
+                    <div class="form-group{% if field.errors %} has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}" class="col-sm-3">
+                            {{ field.label|capfirst }}:
+                        </label>
+                        <div class="col-sm-9">
+                            {{ field }}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <input type="submit" class="btn btn-primary" value="{% trans 'изменить пароль'|capfirst %}">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}

@@ -18,3 +18,5 @@ class UserProfileForm(forms.ModelForm):
 class UserPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super(UserPasswordChangeForm, self).__init__(*args, **kwargs)
+        for field_name in ('old_password', 'new_password1', 'new_password2'):
+            self.fields[field_name] = self.fields.pop(field_name)
