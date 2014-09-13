@@ -12,7 +12,7 @@
                 <img class="img-responsive" src="{{ profile_user|get_avatar }}">
             </div>
             <div class="text-center" style="margin-top: 10px">
-                <a href="#">{% trans 'настройки'|capfirst %}</a>
+                <a href="{% url 'user_settings' %}">{% trans 'настройки'|capfirst %}</a>
             </div>
         </div>
         <div class="col-xs-9">

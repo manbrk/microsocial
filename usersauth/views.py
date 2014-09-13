@@ -118,6 +118,5 @@ class PasswordRecoveryConfirmView(TemplateView):
         if self.form.is_valid():
             self.form.save()
             auth_login(request, self.form.user)
-            # redirect to profile edit
-            return redirect('user_profile', user_id=self.form.user.pk)
+            return redirect('user_settings')
         return self.get(request, *args, **kwargs)
