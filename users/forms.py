@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.translation import ugettext
 from users.models import User
-
+from django.utils.translation import ugettext_lazy as _
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -20,3 +20,31 @@ class UserPasswordChangeForm(PasswordChangeForm):
         super(UserPasswordChangeForm, self).__init__(*args, **kwargs)
         for field_name in ('old_password', 'new_password1', 'new_password2'):
             self.fields[field_name] = self.fields.pop(field_name)
+
+
+class UserEmailChangeForm(forms.Form):
+    new_email = forms.EmailField(max_length=75, label=_(u'новый email'))
+    password = forms.CharField(label=_(u'текущий пароль'), widget=forms.PasswordInput)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(UserEmailChangeForm, self).__init__(*args, **kwargs)
+
+
+    def clean_new_email(self):
+        new_email = self.cleaned_data['new_email'].strip()
+        if User.objects.filter(email=new_email).exclude(pk=self.user.pk).exists:
+            raise forms.ValidationError(ugettext(u'Пользователь с таким email уже существует.'))
+        return new_email
+
+    def clean_password(self):
+        password = self.cleaned_data['password']
+        if not self.user.check_password(password):
+            raise forms.ValidationError(ugettext(u'Введен неправильный пароль.'))
+        return password
+
+    def save(self, commit=True):
+        self.user.email = self.cleaned_data['new_email']
+        if commit:
+            self.user.save()
+        return self.user
