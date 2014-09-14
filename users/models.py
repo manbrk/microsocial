@@ -109,3 +109,12 @@ class User(AbstractBaseUser, PermissionsMixin):
             ugettext(u'Для подтверждения перейдите по ссылке: %s' % url)
         )
 
+
+class UserWallPost(models.Model):
+    user = models.ForeignKey(User, verbose_name=_(u'владелец стены'), related_name='wall_posts')
+    author = models.ForeignKey(User, verbose_name=_(u'автор'), related_name='+')
+    content = models.TextField(_(u'текст'), max_length=5000)
+    created = models.DateTimeField(_(u'дата'), auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ('-created',)

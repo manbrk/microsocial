@@ -2,6 +2,7 @@
 from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY, login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
@@ -21,9 +22,21 @@ class UserProfileView(TemplateView):
             self.user = get_object_or_404(User, pk=kwargs['user_id'])
         return super(UserProfileView, self).dispatch(request, *args, **kwargs)
 
+    def get_wall_posts(self):
+        paginator = Paginator(self.user.wall_posts.select_related('author'), 20)
+        page = self.request.GET.get('page')
+        try:
+            wall_posts = paginator.page(page)
+        except PageNotAnInteger:
+            wall_posts = paginator.page(1)
+        except EmptyPage:
+            wall_posts = paginator.page(paginator.num_pages)
+        return wall_posts
+
     def get_context_data(self, **kwargs):
         context = super(UserProfileView, self).get_context_data(**kwargs)
         context['profile_user'] = self.user
+        context['wall_posts'] = self.get_wall_posts()
         return context
 
 class UserSettingsView(TemplateView):
