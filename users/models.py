@@ -5,12 +5,17 @@ from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core.signing import Signer, TimestampSigner
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.utils import timezone
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, \
     BaseUserManager
 from django.db import models
 from django.utils.crypto import get_random_string
 from django.utils.translation import ugettext_lazy as _, ugettext
+
+
+def get_ids_from_users(*users):
+    return [user.pk if isinstance(user, User) else int(user) for user in users]
 
 
 class UserManager(BaseUserManager):
@@ -28,6 +33,34 @@ class UserManager(BaseUserManager):
 
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True, **extra_fields)
+
+
+class UserFriendShipManager(models.Manager):
+    def are_friends(self, user1, user2):
+        user1_id, user2_id = get_ids_from_users(user1, user2)
+        return self.filter(pk=user1_id, friends__pk=user2_id).exists()
+
+    def add(self, user1, user2):
+        user1_id, user2_id = get_ids_from_users(user1, user2)
+        if user1_id == user2_id:
+            raise ValueError(_(u'Нельзя добавить в друзья самого себя'))
+        if not self.are_friends(user1_id, user2_id):
+            through_model = self.model.friends.through
+            through_model.objects.bulk_create([
+                through_model(from_user_id=user1_id, to_user_id=user2_id),
+                through_model(from_user_id=user2_id, to_user_id=user1_id),
+            ])
+            return True
+
+    def delete(self, user1, user2):
+        user1_id, user2_id = get_ids_from_users(user1, user2)
+        if self.are_friends(user1_id, user2_id):
+            through_model = self.model.friends.through
+            through_model.objects.filter(
+                Q(from_user_id=user1_id, to_user_id=user2_id) | Q(from_user_id=user2_id, to_user_id=user1_id)
+            ).delete()
+            return True
+
 
 def get_avatar_fn(instance, filename):
     id_str = str(instance.pk)
@@ -68,8 +101,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     job = models.CharField(_(u'место работы'), max_length=200, blank=True)
     about_me = models.TextField(_(u'о себе'), max_length=10000, blank=True)
     interests = models.TextField(_(u'интересы'), max_length=10000, blank=True)
+    friends = models.ManyToManyField('self', verbose_name=_(u'друзья'), symmetrical=True, blank=True)
 
     objects = UserManager()
+    friendship = UserFriendShipManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name']
@@ -108,6 +143,14 @@ class User(AbstractBaseUser, PermissionsMixin):
             ugettext(u'Подтвердите восстановление пароля на microsocial'),
             ugettext(u'Для подтверждения перейдите по ссылке: %s' % url)
         )
+
+
+class FriendInvitation(models.Model):
+    from_user = models.ForeignKey(User, related_name='outcoming_friend_invitations')
+    to_user = models.ForeignKey(User, related_name='incoming_friend_invitations')
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
 
 
 class UserWallPost(models.Model):
