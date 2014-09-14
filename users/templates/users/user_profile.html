@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-    {% load i18n users humanize %}
+    {% load i18n users humanize microsocial %}
 
 {% block title %}profile{% endblock %}
 
@@ -59,6 +59,15 @@
                 {% endif %}
                 </tbody>
             </table>
+
+            <form class="form" method="post">
+                {% csrf_token %}
+                {% show_form_field_errors wallpost_form.content.errors %}
+                <div class="form-group{% if wallpost_form.content.errors %} has-error{% endif %}">
+                    {{ wallpost_form.content }}
+                </div>
+                <input type="submit" class="btn btn-primary" value="{% trans 'опубликовать'|capfirst %}">
+            </form>
 
             {% for wall_post in wall_posts %}
                 <div style="margin-top: 20px; border: 1px solid #666; padding: 10px;">

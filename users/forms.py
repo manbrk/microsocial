@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
 from django.utils.translation import ugettext
-from users.models import User
+from users.models import User, UserWallPost
 from django.utils.translation import ugettext_lazy as _
 
 class UserProfileForm(forms.ModelForm):
@@ -48,3 +48,17 @@ class UserEmailChangeForm(forms.Form):
         if commit:
             self.user.save()
         return self.user
+
+class UserWallPostForm(forms.ModelForm):
+    class Meta:
+        model = UserWallPost
+        fields = ('content',)
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 4, 'placeholder': _(u'напишите на стене...')})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(UserWallPostForm, self).__init__(*args, **kwargs)
+
+    def clean_content(self):
+        return self.cleaned_data['content'].strip()
