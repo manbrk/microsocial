@@ -40,6 +40,7 @@ class UserFriendShipManager(models.Manager):
         user1_id, user2_id = get_ids_from_users(user1, user2)
         return self.filter(pk=user1_id, friends__pk=user2_id).exists()
 
+    @atomic
     def add(self, user1, user2):
         user1_id, user2_id = get_ids_from_users(user1, user2)
         if user1_id == user2_id:
@@ -50,6 +51,10 @@ class UserFriendShipManager(models.Manager):
                 through_model(from_user_id=user1_id, to_user_id=user2_id),
                 through_model(from_user_id=user2_id, to_user_id=user1_id),
             ])
+            FriendInvitation.objects.filter(
+                Q(from_user_id=user1_id, to_user_id=user2_id) | Q(from_user_id=user2_id, to_user_id=user1_id)
+
+            ).delete()
             return True
 
     def delete(self, user1, user2):
@@ -145,9 +150,42 @@ class User(AbstractBaseUser, PermissionsMixin):
         )
 
 
+class FriendInvitationManager(models.Manager):
+    def is_pending(self, from_user, to_user):
+        from_user_id, to_user_id = get_ids_from_users(from_user, to_user)
+        return self.filter(from_user_id=from_user_id, to_user_id=to_user_id).exists()
+
+    def add(self, from_user, to_user):
+        from_user_id, to_user_id = get_ids_from_users(from_user, to_user)
+        if from_user_id == to_user_id:
+            raise ValueError(_(u'Нельзя добавлять в друзья самого себя'))
+        if User.friendship.are_friends(from_user, to_user):
+            raise ValueError(_(u'Уже друзья.'))
+        if self.is_pending(from_user_id, to_user_id):
+            raise ValueError(_(u'Заявка уже создана и ожидает рассмотрения.'))
+        if self.is_pending(to_user_id, from_user_id):
+            User.friendship.add(from_user_id, to_user_id)
+            return 2
+        self.create(from_user_id=from_user_id, to_user_id=to_user_id)
+        return 1
+
+    def approve(self, from_user, to_user):
+        from_user_id, to_user_id = get_ids_from_users(from_user, to_user)
+        if not self.is_pending(from_user_id, to_user_id):
+            raise ValueError(_(u'Заявка не существует.'))
+        return User.friendship.add(from_user_id, to_user_id)
+
+    def reject(self, from_user, to_user):
+        from_user_id, to_user_id = get_ids_from_users(from_user, to_user)
+        self.filter(from_user_id=from_user_id, to_user_id=to_user_id).delete()
+
+
+
 class FriendInvitation(models.Model):
     from_user = models.ForeignKey(User, related_name='outcoming_friend_invitations')
     to_user = models.ForeignKey(User, related_name='incoming_friend_invitations')
+
+    objects = FriendInvitationManager()
 
     class Meta:
         unique_together = ('from_user', 'to_user')
