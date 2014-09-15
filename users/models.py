@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from django.core.signing import Signer, TimestampSigner
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.db.transaction import atomic
 from django.utils import timezone
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, \
     BaseUserManager
