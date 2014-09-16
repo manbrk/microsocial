@@ -92,3 +92,42 @@ class UserSettingsView(TemplateView):
             messages.success(request, _(u'Email успешно изменен.'))
             return redirect(request.path)
         return self.get(request, *args, **kwargs)
+
+
+class UserFriendsView(TemplateView):
+    template_name = 'users/friends_friends.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserFriendsView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UserFriendsView, self).get_context_data(**kwargs)
+        context['friends_menu'] = 'friends'
+        return context
+
+
+class UserIncomingView(TemplateView):
+    template_name = 'users/friends_incoming.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserIncomingView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UserIncomingView , self).get_context_data(**kwargs)
+        context['friends_menu'] = 'incoming'
+        return context
+
+
+class UserOutcomingView(TemplateView):
+    template_name = 'users/friends_outcoming.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserOutcomingView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UserOutcomingView , self).get_context_data(**kwargs)
+        context['friends_menu'] = 'outcoming'
+        return context
