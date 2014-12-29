@@ -111,6 +111,15 @@ class UserFriendsView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UserFriendsView, self).get_context_data(**kwargs)
         context['friends_menu'] = 'friends'
+        paginator = Paginator(self.request.user.friends.all(), 20)
+        page = self.request.GET.get('page')
+        try:
+            items = paginator.page(page)
+        except PageNotAnInteger:
+            items = paginator.page(1)
+        except EmptyPage:
+            items = paginator.page(paginator.num_pages)
+        context['items'] = items
         return context
 
 
@@ -124,6 +133,15 @@ class UserIncomingView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UserIncomingView , self).get_context_data(**kwargs)
         context['friends_menu'] = 'incoming'
+        paginator = Paginator(self.request.user.incoming_friend_invitations.all(), 20)
+        page = self.request.GET.get('page')
+        try:
+            items = paginator.page(page)
+        except PageNotAnInteger:
+            items = paginator.page(1)
+        except EmptyPage:
+            items = paginator.page(paginator.num_pages)
+        context['items'] = items
         return context
 
 
@@ -137,6 +155,15 @@ class UserOutcomingView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UserOutcomingView , self).get_context_data(**kwargs)
         context['friends_menu'] = 'outcoming'
+        paginator = Paginator(self.request.user.outcoming_friend_invitations.all(), 20)
+        page = self.request.GET.get('page')
+        try:
+            items = paginator.page(page)
+        except PageNotAnInteger:
+            items = paginator.page(1)
+        except EmptyPage:
+            items = paginator.page(paginator.num_pages)
+        context['items'] = items
         return context
 
 class FriendshipAPIView(View):
@@ -168,4 +195,38 @@ class FriendshipAPIView(View):
                 elif r == 2:
                     messages.success(self.request, _(u'Пользователь успешно добавлен в друзья.'))
                     return 'user_friends'
+        return 'user_outcoming'
+
+    def _action_delete_from_friends(self):
+        user_id = self._get_int_or_none('user_id')
+        if user_id:
+            if User.friendship.delete(self.request.user, user_id):
+                messages.success(self.request, _(u'Пользователь успешно удален из друзей.'))
+        return 'user_friends'
+
+
+    def _action_approve(self):
+        user_id = self._get_int_or_none('user_id')
+        if user_id:
+            try:
+                r = FriendInvitation.objects.approve(user_id, self.request.user)
+            except ValueError, e:
+                messages.warning(self.request, e)
+            else:
+                if r:
+                    messages.success(self.request, _(u'Заявка успешно подтверждена. Пользователь добавлен в друзья.'))
+        return 'user_incoming'
+
+    def _action_reject(self):
+        user_id = self._get_int_or_none('user_id')
+        if user_id:
+            FriendInvitation.objects.reject(user_id, self.request.user)
+            messages.success(self.request, _(u'Заявка успешно отклонена.'))
+        return 'user_incoming'
+
+    def _action_cancel_outcoming(self):
+        user_id = self._get_int_or_none('user_id')
+        if user_id:
+            FriendInvitation.objects.filter(from_user=self.request.user, to_user=user_id).delete()
+            messages.success(self.request, _(u'Заявка успешно отменена.'))
         return 'user_outcoming'

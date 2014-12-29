@@ -12,12 +12,19 @@
                 <img class="img-responsive" src="{{ profile_user|get_avatar }}">
             </div>
 
-            <div class="text-center" style="margin-top: 10px">
+            <div class="text-center" style="margin-top: 10px;">
                 {% if is_my_profile %}
                     <a href="{% url 'user_settings' %}">{% trans 'настройки'|capfirst %}</a>
                 {% else %}
-                    {% if is_myfriend %}
-                        {# todo del from friends #}
+                    {% if is_my_friend %}
+                        <form action="{% url 'user_friendship_api' %}" method="post" style="display: inline-block">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete_from_friends">
+                            <input type="hidden" name="user_id" value="{{ profile_user.pk }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <input type="submit" class="btn btn-danger btn-sm"
+                                   value="{% trans 'удалить из друзей'|capfirst %}">
+                        </form>
                     {% else %}
                         <form action="{% url 'user_friendship_api' %}" method="post">
                             {% csrf_token %}
