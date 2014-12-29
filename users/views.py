@@ -3,12 +3,14 @@ from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY, login
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.decorators.http import require_POST
+from django.views.generic import TemplateView, View
 from users.forms import UserProfileForm, UserPasswordChangeForm, \
     UserEmailChangeForm, UserWallPostForm
-from users.models import User
+from users.models import User, FriendInvitation
 from django.utils.translation import ugettext as _
 
 
@@ -19,8 +21,10 @@ class UserProfileView(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated() and int(kwargs['user_id']) == request.user.pk:
             self.user = request.user
+            self.is_my_profile = True
         else:
             self.user = get_object_or_404(User, pk=kwargs['user_id'])
+            self.is_my_profile = False
         self.wallpost_form = UserWallPostForm(request.POST or None)
         return super(UserProfileView, self).dispatch(request, *args, **kwargs)
 
@@ -40,6 +44,9 @@ class UserProfileView(TemplateView):
         context['profile_user'] = self.user
         context['wall_posts'] = self.get_wall_posts()
         context['wallpost_form'] = self.wallpost_form
+        context['is_my_profile'] = self.is_my_profile
+        if not self.is_my_profile:
+            context['is_my_friend'] = User.friendship.are_friends(self.request.user, self.user)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -131,3 +138,34 @@ class UserOutcomingView(TemplateView):
         context = super(UserOutcomingView , self).get_context_data(**kwargs)
         context['friends_menu'] = 'outcoming'
         return context
+
+class FriendshipAPIView(View):
+    @method_decorator(login_required)
+    @method_decorator(require_POST)
+    def dispatch(self, request, *args, **kwargs):
+        method_name = '_action_%s' % request.POST.get('action', '')
+        if not hasattr(self, method_name):
+            raise Http404
+        default_url = getattr(self, method_name)()
+        return redirect(request.POST.get('next') or default_url or 'main')
+
+    def _get_int_or_none(self, attr_name):
+        try:
+            return int(self.request.POST.get(attr_name))
+        except (ValueError, TypeError):
+            pass
+
+    def _action_add_to_friends(self):
+        user_id = self._get_int_or_none('user_id')
+        if user_id:
+            try:
+                r = FriendInvitation.objects.add(self.request.user, user_id)
+            except ValueError, e:
+                messages.warning(self.request, e)
+            else:
+                if r == 1:
+                    messages.success(self.request, _(u'Заявка успешно отправлена и ожидает рассмотрения.'))
+                elif r == 2:
+                    messages.success(self.request, _(u'Пользователь успешно добавлен в друзья.'))
+                    return 'user_friends'
+        return 'user_outcoming'

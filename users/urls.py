@@ -1,7 +1,7 @@
 # coding=utf-8
 from django.conf.urls import url
-from users.views import UserProfileView, UserSettingsView, UserFriendsView, \
-    UserIncomingView, UserOutcomingView
+from users.views import (UserProfileView, UserSettingsView, UserFriendsView,
+    UserIncomingView, UserOutcomingView, FriendshipAPIView)
 
 
 urlpatterns = [
@@ -10,5 +10,5 @@ urlpatterns = [
     url(r'^friends/$', UserFriendsView.as_view(), name='user_friends'),
     url(r'^friends/incoming$', UserIncomingView.as_view(), name='user_incoming'),
     url(r'^friends/outcoming$', UserOutcomingView.as_view(), name='user_outcoming'),
-
+    url(r'^api/friendship/$', FriendshipAPIView.as_view(), name='user_friendship_api'),
 ]
