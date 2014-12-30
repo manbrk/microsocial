@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, View
 from users.forms import UserProfileForm, UserPasswordChangeForm, \
-    UserEmailChangeForm, UserWallPostForm
+    UserEmailChangeForm, UserWallPostForm, SearchForm
 from users.models import User, FriendInvitation
 from django.utils.translation import ugettext as _
 
@@ -230,3 +230,16 @@ class FriendshipAPIView(View):
             FriendInvitation.objects.filter(from_user=self.request.user, to_user=user_id).delete()
             messages.success(self.request, _(u'Заявка успешно отменена.'))
         return 'user_outcoming'
+
+class SearchView(TemplateView):
+    template_name = 'users/search.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.form = SearchForm(request.GET or None)
+        return super(SearchView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchView , self).get_context_data(**kwargs)
+        context['form'] = self.form
+        return context
