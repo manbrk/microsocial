@@ -1,6 +1,7 @@
 #coding=utf-8
 import hashlib
 import os
+import datetime
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core.signing import Signer, TimestampSigner
@@ -149,6 +150,10 @@ class User(AbstractBaseUser, PermissionsMixin):
             ugettext(u'Подтвердите восстановление пароля на microsocial'),
             ugettext(u'Для подтверждения перейдите по ссылке: %s' % url)
         )
+
+    def get_age(self):
+        if self.birth_date:
+            return (datetime.date.today() - self.birth_date).days / 365
 
 
 class FriendInvitationManager(models.Manager):

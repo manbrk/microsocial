@@ -242,4 +242,14 @@ class SearchView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SearchView , self).get_context_data(**kwargs)
         context['form'] = self.form
+        qs = User.objects.all()
+        paginator = Paginator(qs, 20)
+        page = self.request.GET.get('page')
+        try:
+            items = paginator.page(page)
+        except PageNotAnInteger:
+            items = paginator.page(1)
+        except EmptyPage:
+            items = paginator.page(paginator.num_pages)
+        context['items'] = items
         return context
