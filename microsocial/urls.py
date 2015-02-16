@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^i18n/setlang/$', csrf_exempt(set_language), name='set_language'),
     url(r'', include('users.urls')),
     url(r'', include('usersauth.urls')),
+    url(r'', include('dialogs.urls')),
 )
 
 

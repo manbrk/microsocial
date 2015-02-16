@@ -26,7 +26,7 @@
                     </form>
                 </p>
                 <p>
-                    <a href="#">{% trans 'отправить сообщение'|capfirst %}</a>
+                    <a href="{% url 'messages' item.pk %}">{% trans 'отправить сообщение'|capfirst %}</a>
                 </p>
             </div>
         </div>
