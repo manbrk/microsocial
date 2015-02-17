@@ -1,9 +1,22 @@
 {% extends 'base.html' %}
 
-{% load i18n %}
+{% load i18n microsocial %}
 
 {% block content %}
+    <div class="row">
+        <div class="col-sm-4">
+            <h1 style="margin-top: 0;">{% trans 'сообщения'|capfirst %}</h1>
+            {% for dialog in dialogs %}
+                {{ dialog }}
+            {% endfor %}
+            {% show_paginator dialogs 'dialogs_page' %}
+        </div>
+        <div class="col-sm-8">
 
-    <h1>{% trans 'сообщения'|capfirst %}</h1>
+        </div>
+    </div>
+
+
+
 
 {% endblock %}
