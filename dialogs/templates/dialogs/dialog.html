@@ -32,7 +32,18 @@
                         {{ opponent.get_full_name }}
                     </a>
                 </h4>
-
+                <form class="form-horizontal" method="post">
+                    {% csrf_token %}
+                    {% show_form_field_errors form.text.errors 'col-xs-9' %}
+                    <div class="form-group{% if form.text.errors %} has-error{% endif %}">
+                        <div class="col-xs-9">
+                            {{ form.text }}
+                        </div>
+                        <div class="col-xs-3">
+                            <input type="submit" class="btn btn-primary" value="{% trans 'отправить'|capfirst %}">
+                        </div>
+                    </div>
+                </form>
                 {% for message in dialog_messages %}
                     <div style="margin-top: 20px;">
                         <div class="row">
@@ -51,14 +62,11 @@
                             <div class="col-sm-7">
                                 {{ message.text|linebreaks }}
                             </div>
-
                         </div>
-
                     </div>
                 {% endfor %}
-                {% show_paginator dialogs 'messages_page' %}
+                {% show_paginator dialog_messages 'messages_page' %}
             {% endif %}
-
         </div>
     </div>
 

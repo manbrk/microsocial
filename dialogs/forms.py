@@ -1,0 +1,16 @@
+# coding=utf-8
+from django import forms
+from dialogs.models import Message
+from django.utils.translation import ugettext_lazy as _
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ('text',)
+        widgets = {
+            'text': forms.Textarea(attrs={'rows': 4, 'placeholder': _(u'Введите сообщение')})
+        }
+
+    def clean_text(self):
+        return self.cleaned_data['text'].strip()

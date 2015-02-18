@@ -3,9 +3,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
+from dialogs.forms import MessageForm
 from dialogs.models import Dialog
 
 
@@ -22,7 +23,7 @@ class DialogView(TemplateView):
             self.dialog = Dialog.objects.get_or_create(request.user, self.opponnent)
             if not self.dialog:
                 raise Http404
-            # self.form =
+            self.form = MessageForm(request.POST or None)
         return super(DialogView, self).dispatch(request, *args, **kwargs)
 
     def get_dialogs(self):
@@ -57,4 +58,14 @@ class DialogView(TemplateView):
         context['dialogs'] = self.get_dialogs()
         context['opponent'] = self.opponnent
         context['dialog_messages'] = self.get_messages()
+        context['form'] = self.form
         return context
+
+    def post(self, request, *args, **kwargs):
+        if self.form and self.form.is_valid():
+            message = self.form.save(commit=False)
+            message.sender = request.user
+            message.dialog = self.dialog
+            message.save()
+            return redirect(request.get_full_path())
+        return self.get(request, *args, **kwargs)
