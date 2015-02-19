@@ -11,6 +11,7 @@ urlpatterns = patterns('',
     url(r'', include('users.urls')),
     url(r'', include('usersauth.urls')),
     url(r'', include('dialogs.urls')),
+    url(r'', include('news.urls')),
 )
 
 

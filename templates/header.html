@@ -21,7 +21,7 @@
     <div class="collapse navbar-collapse">
       {% if user.is_authenticated %}
           <ul class="nav navbar-nav">
-                <li><a href="#">{% trans 'новости'|capfirst %}</a></li>
+                <li><a href="{% url 'news' %}">{% trans 'новости'|capfirst %}</a></li>
                 <li><a href="{% url 'user_profile' user.pk %}">{% trans 'мой профиль'|capfirst %}</a></li>
                 <li><a href="{% url 'user_friends' %}">{% trans 'друзья'|capfirst %}</a></li>
                 <li><a href="{% url 'messages' %}">{% trans 'сообщения'|capfirst %}</a></li>
