@@ -4,6 +4,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -20,8 +22,8 @@ class NewsItem(models.Model):
     TYPE_BREAK_FRIENDS = 'break_friends'
     TYPE_CHOICES = (
         (TYPE_WALL_POST, _(u'сообщение на стене')),
-        (TYPE_MAKE_FRIENDS, _(u'создание дружественной свзяи')),
-        (TYPE_BREAK_FRIENDS, _(u'разрыв дружественной свзяи')),
+        (TYPE_MAKE_FRIENDS, _(u'создание дружественной связи')),
+        (TYPE_BREAK_FRIENDS, _(u'разрыв дружественной связи')),
     )
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
@@ -39,3 +41,14 @@ class NewsItem(models.Model):
 
     def get_template_for_display(self):
         return 'news/display_%s.html' % self.type
+
+
+@receiver(post_save, sender='users.UserWallPost')
+def add_news_wall_post(sender, instance, created, **kwargs):
+    if created:
+        NewsItem.objects.create(
+            user=instance.author,
+            target=instance.user,
+            type=NewsItem.TYPE_WALL_POST,
+            news_object=instance,
+        )
