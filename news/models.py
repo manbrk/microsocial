@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
+from users.models import make_friends, break_friends
 
 
 class NewsItemManager(models.Manager):
@@ -52,3 +53,20 @@ def add_news_wall_post(sender, instance, created, **kwargs):
             type=NewsItem.TYPE_WALL_POST,
             news_object=instance,
         )
+
+
+@receiver(make_friends)
+def add_news_make_friends(sender, user1_id, user2_id, **kwargs):
+    NewsItem.objects.create(
+        user_id=user1_id,
+        target_id=user2_id,
+        type=NewsItem.TYPE_MAKE_FRIENDS
+    )
+
+@receiver(break_friends)
+def add_news_break_friends(sender, user1_id, user2_id, **kwargs):
+    NewsItem.objects.create(
+        user_id=user1_id,
+        target_id=user2_id,
+        type=NewsItem.TYPE_BREAK_FRIENDS
+    )
